@@ -2,6 +2,7 @@
 package io.github.kotlinmania.tar
 
 // See https://en.wikipedia.org/wiki/Tar_%28computing%29#UStar_format
+
 /**
  * Indicate the type of content described by a header.
  *
@@ -55,27 +56,30 @@ sealed class EntryType {
      * clients don't count on exhaustive matching. (Otherwise, adding a new
      * variant could break existing code.)
      */
-    data class __Nonexhaustive(val byte: UByte) : EntryType()
+    data class __Nonexhaustive(
+        val byte: UByte,
+    ) : EntryType()
 
     /**
      * Returns the raw underlying byte that this entry type represents.
      */
-    fun asByte(): UByte = when (this) {
-        Regular -> '0'.code.toUByte()
-        Link -> '1'.code.toUByte()
-        Symlink -> '2'.code.toUByte()
-        Char -> '3'.code.toUByte()
-        Block -> '4'.code.toUByte()
-        Directory -> '5'.code.toUByte()
-        Fifo -> '6'.code.toUByte()
-        Continuous -> '7'.code.toUByte()
-        XHeader -> 'x'.code.toUByte()
-        XGlobalHeader -> 'g'.code.toUByte()
-        GNULongName -> 'L'.code.toUByte()
-        GNULongLink -> 'K'.code.toUByte()
-        GNUSparse -> 'S'.code.toUByte()
-        is __Nonexhaustive -> this.byte
-    }
+    fun asByte(): UByte =
+        when (this) {
+            Regular -> '0'.code.toUByte()
+            Link -> '1'.code.toUByte()
+            Symlink -> '2'.code.toUByte()
+            Char -> '3'.code.toUByte()
+            Block -> '4'.code.toUByte()
+            Directory -> '5'.code.toUByte()
+            Fifo -> '6'.code.toUByte()
+            Continuous -> '7'.code.toUByte()
+            XHeader -> 'x'.code.toUByte()
+            XGlobalHeader -> 'g'.code.toUByte()
+            GNULongName -> 'L'.code.toUByte()
+            GNULongLink -> 'K'.code.toUByte()
+            GNUSparse -> 'S'.code.toUByte()
+            is __Nonexhaustive -> this.byte
+        }
 
     /** Returns whether this type represents a regular file. */
     fun isFile(): Boolean = this == Regular
@@ -133,22 +137,23 @@ sealed class EntryType {
          * Note that the other named constructors of entry type may be more
          * appropriate to create a file type from.
          */
-        fun new(byte: UByte): EntryType = when (byte.toInt()) {
-            0x00, '0'.code -> Regular
-            '1'.code -> Link
-            '2'.code -> Symlink
-            '3'.code -> Char
-            '4'.code -> Block
-            '5'.code -> Directory
-            '6'.code -> Fifo
-            '7'.code -> Continuous
-            'x'.code -> XHeader
-            'g'.code -> XGlobalHeader
-            'L'.code -> GNULongName
-            'K'.code -> GNULongLink
-            'S'.code -> GNUSparse
-            else -> __Nonexhaustive(byte)
-        }
+        fun new(byte: UByte): EntryType =
+            when (byte.toInt()) {
+                0x00, '0'.code -> Regular
+                '1'.code -> Link
+                '2'.code -> Symlink
+                '3'.code -> Char
+                '4'.code -> Block
+                '5'.code -> Directory
+                '6'.code -> Fifo
+                '7'.code -> Continuous
+                'x'.code -> XHeader
+                'g'.code -> XGlobalHeader
+                'L'.code -> GNULongName
+                'K'.code -> GNULongLink
+                'S'.code -> GNUSparse
+                else -> __Nonexhaustive(byte)
+            }
 
         /** Creates a new entry type representing a regular file. */
         fun file(): EntryType = Regular
