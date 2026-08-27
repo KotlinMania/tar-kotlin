@@ -1,10 +1,8 @@
-// port-lint: ignore
-// Platform-neutral stand-in for `std::io::Error` and `std::io::ErrorKind`. The
-// upstream Rust crate uses these throughout its public surface; Kotlin's
-// stdlib does not expose an IOException type in common code and the project's
-// approved-dependency set does not pull in kotlinx-io. The minimal shapes
-// modelled here mirror only the subset that the tar crate observes.
 package io.github.kotlinmania.tar
+
+/**
+ * Platform-neutral representation of I/O error and error kinds.
+ */
 
 /**
  * Categories of I/O failure mirrored from `std::io::ErrorKind`. Additional

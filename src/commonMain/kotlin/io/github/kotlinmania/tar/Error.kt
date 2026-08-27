@@ -1,16 +1,16 @@
-// port-lint: source src/error.rs
+// port-lint: source error.rs
 package io.github.kotlinmania.tar
 
 /**
- * The internal error type used by the tar crate to attach a descriptive
- * message to an underlying [IoError]. The upstream type wraps a
- * `Cow<'static, str>` description alongside a `std::io::Error` source;
- * Kotlin has no borrow-vs-owned distinction so [desc] is plain [String].
+ * The internal error type used by the tar library to attach a descriptive
+ * message to an underlying [IoError]. The type wraps a descriptive [desc]
+ * string alongside an [err] I/O error source.
  */
 class TarError(
     val desc: String,
-    val io: IoError,
-) : RuntimeException(desc, io) {
+    val err: IoError,
+) : RuntimeException(desc, err) {
+    val io: IoError get() = err
     /**
      * Mirrors `impl error::Error::description` on the upstream type. Kotlin's
      * standard library exposes the message through [message], but the
