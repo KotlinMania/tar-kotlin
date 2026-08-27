@@ -1,4 +1,4 @@
-import XCTest
+import Testing
 import Tar
 
 // Smoke test for the Kotlin → Swift Export → SPM → swift test pipeline.
@@ -28,8 +28,10 @@ import Tar
 // Add more meaningful per-API tests below as the Swift Export surface
 // grows. For now the import + a single passing assertion is the
 // canary that the pipeline is green for this repo.
-final class TarExportTests: XCTestCase {
-    func testSwiftModuleLoads() throws {
-        XCTAssertTrue(true, "Tar swift module imported cleanly")
+@Suite("Tar Swift Export Tests")
+struct TarExportTests {
+    @Test("Tar swift module imported cleanly")
+    func swiftModuleLoads() {
+        #expect(true)
     }
 }

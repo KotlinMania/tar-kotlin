@@ -1,7 +1,7 @@
-// port-lint: source src/entry_type.rs
+// port-lint: source entry_type.rs
 package io.github.kotlinmania.tar
 
-// See https://en.wikipedia.org/wiki/Tar_%28computing%29#UStar_format
+// See POSIX ustar format specification
 
 /**
  * Indicate the type of content described by a header.
@@ -31,7 +31,7 @@ sealed class EntryType {
     /** Named pipe (fifo) */
     object Fifo : EntryType()
 
-    /** Implementation-defined 'high-performance' type, treated as regular file */
+    /** Implementation-defined high-performance type, treated as regular file */
     object Continuous : EntryType()
 
     /** GNU extension - long file name */
