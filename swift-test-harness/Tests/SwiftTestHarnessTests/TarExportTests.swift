@@ -32,6 +32,6 @@ import Tar
 struct TarExportTests {
     @Test("Tar swift module imported cleanly")
     func swiftModuleLoads() {
-        #expect(true)
+        #expect(Bool(true))
     }
 }
