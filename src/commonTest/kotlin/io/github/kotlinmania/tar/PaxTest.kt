@@ -9,11 +9,12 @@ import kotlin.test.assertNull
 class PaxTest {
     @Test
     fun roundtripPaxExtensions() {
-        val extensions = listOf(
-            PAX_PATH to "hello/world".encodeToByteArray(),
-            PAX_SIZE to "123456789".encodeToByteArray(),
-            PAX_UNAME to "ferris".encodeToByteArray(),
-        )
+        val extensions =
+            listOf(
+                PAX_PATH to "hello/world".encodeToByteArray(),
+                PAX_SIZE to "123456789".encodeToByteArray(),
+                PAX_UNAME to "ferris".encodeToByteArray(),
+            )
 
         val formatted = formatPaxExtensions(extensions)
         val parsed = PaxExtensions.new(formatted).toList()
@@ -31,10 +32,11 @@ class PaxTest {
 
     @Test
     fun paxExtensionsValueParsing() {
-        val extensions = listOf(
-            PAX_SIZE to "9876543210".encodeToByteArray(),
-            PAX_UID to "1000".encodeToByteArray(),
-        )
+        val extensions =
+            listOf(
+                PAX_SIZE to "9876543210".encodeToByteArray(),
+                PAX_UID to "1000".encodeToByteArray(),
+            )
         val data = formatPaxExtensions(extensions)
 
         assertEquals(9876543210uL, paxExtensionsValue(data, PAX_SIZE))
@@ -71,10 +73,11 @@ class PaxTest {
 
     @Test
     fun gnuSparsePaxKeywords() {
-        val extensions = listOf(
-            PAX_GNUSPARSENUMBLOCKS to "2".encodeToByteArray(),
-            PAX_GNUSPARSEREALSIZE to "4096".encodeToByteArray(),
-        )
+        val extensions =
+            listOf(
+                PAX_GNUSPARSENUMBLOCKS to "2".encodeToByteArray(),
+                PAX_GNUSPARSEREALSIZE to "4096".encodeToByteArray(),
+            )
         val data = formatPaxExtensions(extensions)
 
         assertEquals(2uL, paxExtensionsValue(data, PAX_GNUSPARSENUMBLOCKS))

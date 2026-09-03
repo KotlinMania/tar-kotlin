@@ -4,12 +4,12 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 5/8 (62.5%)
-- **Function parity:** 114/250 matched (target 169) — 45.6%
-- **Class/type parity:** 11/30 matched (target 29) — 36.7%
-- **Combined symbol parity:** 125/280 matched (target 198) — 44.6%
-- **Average inline-code cosine:** 0.57 (function body across 5 matched files)
-- **Average documentation cosine:** 0.67 (doc text across 5 matched files)
+- **Files Present:** 6/8 (75.0%)
+- **Function parity:** 144/233 matched (target 224) — 61.8%
+- **Class/type parity:** 15/30 matched (target 38) — 50.0%
+- **Combined symbol parity:** 159/263 matched (target 262) — 60.5%
+- **Average inline-code cosine:** 0.59 (function body across 6 matched files)
+- **Average documentation cosine:** 0.68 (doc text across 6 matched files)
 - **Cheat-zeroed Files:** 0
 - **Critical Issues:** 3 files with <0.60 function similarity
 
@@ -71,7 +71,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/3 matched (target 4)
 - **Missing types:** `Item`
 
-### 5. lib
+### 5. entry
+
+- **Target:** `tar.Entry`
+- **Similarity:** 0.64
+- **Dependents:** 0
+- **Priority Score:** 3403.6
+- **Functions:** 30/30 matched (target 55)
+- **Missing functions:** _none_
+- **Types:** 4/4 matched (target 9)
+- **Missing types:** _none_
+- **Lint issues:** 13
+
+### 6. lib
 
 - **Target:** `tar.Lib`
 - **Similarity:** 0.78

@@ -8,9 +8,10 @@ package io.github.kotlinmania.tar
  */
 class TarError(
     val desc: String,
-    val err: IoError,
+    val err: IoError = IoError(IoErrorKind.Other, desc),
 ) : RuntimeException(desc, err) {
     val io: IoError get() = err
+
     /**
      * Mirrors `impl error::Error::description` on the upstream type. Kotlin's
      * standard library exposes the message through [message], but the

@@ -70,11 +70,14 @@ class ByteSlice(
         }
     }
 
-    override fun iterator(): ByteIterator = object : ByteIterator() {
-        private var idx = 0
-        override fun hasNext(): Boolean = idx < size
-        override fun nextByte(): Byte = get(idx++)
-    }
+    override fun iterator(): ByteIterator =
+        object : ByteIterator() {
+            private var idx = 0
+
+            override fun hasNext(): Boolean = idx < size
+
+            override fun nextByte(): Byte = get(idx++)
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -218,21 +221,18 @@ class Header(
     /**
      * Returns the size of entry's data this header represents.
      */
-    fun entrySize(): Long {
-        return numFieldWrapperFrom(bytes.copyOfRange(124, 136))
-    }
+    fun entrySize(): Long = numFieldWrapperFrom(bytes.copyOfRange(124, 136))
 
     /**
      * Returns the file size this header represents.
      */
-    fun size(): Long {
-        return if (entryType().isGnuSparse()) {
+    fun size(): Long =
+        if (entryType().isGnuSparse()) {
             val gnu = asGnu() ?: throw IoError(IoErrorKind.Other, "sparse header was not a gnu header")
             gnu.realSize()
         } else {
             entrySize()
         }
-    }
 
     /** Encodes the `size` argument into the size field of this header. */
     fun setSize(size: Long) {
@@ -286,13 +286,12 @@ class Header(
     }
 
     /** Returns the link name stored in this header as a byte array, if any. */
-    fun linkNameBytes(): ByteArray? {
-        return if (bytes[157] != 0.toByte()) {
+    fun linkNameBytes(): ByteArray? =
+        if (bytes[157] != 0.toByte()) {
             truncate(bytes.copyOfRange(157, 257))
         } else {
             null
         }
-    }
 
     /** Sets the link name for this header. */
     fun setLinkName(path: String) {
@@ -490,7 +489,9 @@ class Header(
 /**
  * Representation of the header of an entry in an archive (Old format).
  */
-class OldHeader(val header: Header) {
+class OldHeader(
+    val header: Header,
+) {
     val bytes: ByteArray get() = header.bytes
 
     val name: ByteSlice get() = ByteSlice(bytes, 0, 100)
@@ -505,13 +506,16 @@ class OldHeader(val header: Header) {
     val pad: ByteSlice get() = ByteSlice(bytes, 257, 255)
 
     fun asHeader(): Header = header
+
     fun asHeaderMut(): Header = header
 }
 
 /**
  * Representation of the header of an entry in an archive (UStar format).
  */
-class UstarHeader(val header: Header) {
+class UstarHeader(
+    val header: Header,
+) {
     val bytes: ByteArray get() = header.bytes
 
     val name: ByteSlice get() = ByteSlice(bytes, 0, 100)
@@ -534,6 +538,7 @@ class UstarHeader(val header: Header) {
     val pad: ByteSlice get() = ByteSlice(bytes, 500, 12)
 
     fun asHeader(): Header = header
+
     fun asHeaderMut(): Header = header
 
     fun pathBytes(): ByteArray {
@@ -633,23 +638,33 @@ class UstarHeader(val header: Header) {
 /**
  * Representation of the header of an entry in an archive (GNU format).
  */
-class GnuHeader(val header: Header) {
+class GnuHeader(
+    val header: Header,
+) {
     val bytes: ByteArray get() = header.bytes
 
     val name: ByteSlice get() = ByteSlice(bytes, 0, 100)
     val mode: ByteSlice get() = ByteSlice(bytes, 100, 8)
     var uid: ByteSlice
         get() = ByteSlice(bytes, 108, 8)
-        set(v) { ByteSlice(bytes, 108, 8).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(bytes, 108, 8).copyFrom(v.toByteArray())
+        }
     var gid: ByteSlice
         get() = ByteSlice(bytes, 116, 8)
-        set(v) { ByteSlice(bytes, 116, 8).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(bytes, 116, 8).copyFrom(v.toByteArray())
+        }
     var size: ByteSlice
         get() = ByteSlice(bytes, 124, 12)
-        set(v) { ByteSlice(bytes, 124, 12).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(bytes, 124, 12).copyFrom(v.toByteArray())
+        }
     var mtime: ByteSlice
         get() = ByteSlice(bytes, 136, 12)
-        set(v) { ByteSlice(bytes, 136, 12).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(bytes, 136, 12).copyFrom(v.toByteArray())
+        }
     val cksum: ByteSlice get() = ByteSlice(bytes, 148, 8)
     val typeflag: ByteSlice get() = ByteSlice(bytes, 156, 1)
     val linkname: ByteSlice get() = ByteSlice(bytes, 157, 100)
@@ -667,17 +682,21 @@ class GnuHeader(val header: Header) {
     val longnames: ByteSlice get() = ByteSlice(bytes, 381, 4)
     val unused: ByteSlice get() = ByteSlice(bytes, 385, 1)
 
-    val sparse: List<GnuSparseHeader> = List(GNU_SPARSE_HEADERS_COUNT) { i ->
-        GnuSparseHeader(bytes, 386 + i * 24)
-    }
+    val sparse: List<GnuSparseHeader> =
+        List(GNU_SPARSE_HEADERS_COUNT) { i ->
+            GnuSparseHeader(bytes, 386 + i * 24)
+        }
 
     val isextendedBytes: ByteSlice get() = ByteSlice(bytes, 482, 1)
     var realsizeBytes: ByteSlice
         get() = ByteSlice(bytes, 483, 12)
-        set(v) { ByteSlice(bytes, 483, 12).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(bytes, 483, 12).copyFrom(v.toByteArray())
+        }
     val pad: ByteSlice get() = ByteSlice(bytes, 495, 17)
 
     fun asHeader(): Header = header
+
     fun asHeaderMut(): Header = header
 
     fun usernameBytes(): ByteArray = truncate(uname.toByteArray())
@@ -748,11 +767,15 @@ class GnuSparseHeader(
 ) {
     var offsetBytes: ByteSlice
         get() = ByteSlice(array, offsetIndex, 12)
-        set(v) { ByteSlice(array, offsetIndex, 12).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(array, offsetIndex, 12).copyFrom(v.toByteArray())
+        }
 
     var numbytes: ByteSlice
         get() = ByteSlice(array, offsetIndex + 12, 12)
-        set(v) { ByteSlice(array, offsetIndex + 12, 12).copyFrom(v.toByteArray()) }
+        set(v) {
+            ByteSlice(array, offsetIndex + 12, 12).copyFrom(v.toByteArray())
+        }
 
     fun isEmpty(): Boolean = offsetBytes[0] == 0.toByte() || numbytes[0] == 0.toByte()
 
@@ -785,11 +808,13 @@ class GnuExtSparseHeader(
         }
     }
 
-    val sparse: List<GnuSparseHeader> = List(GNU_EXT_SPARSE_HEADERS_COUNT) { i ->
-        GnuSparseHeader(bytes, i * 24)
-    }
+    val sparse: List<GnuSparseHeader> =
+        List(GNU_EXT_SPARSE_HEADERS_COUNT) { i ->
+            GnuSparseHeader(bytes, i * 24)
+        }
 
     fun asBytes(): ByteArray = bytes
+
     fun asMutBytes(): ByteArray = bytes
 
     fun isExtended(): Boolean = bytes[504] == 1.toByte()
@@ -806,11 +831,12 @@ class GnuExtSparseHeader(
 fun octalFrom(slice: ByteArray): Long {
     val trun = truncate(slice)
     if (trun.isEmpty()) return 0L
-    val numStr = try {
-        trun.decodeToString()
-    } catch (_: Exception) {
-        throw IoError(IoErrorKind.InvalidData, "numeric field did not have utf-8 text")
-    }
+    val numStr =
+        try {
+            trun.decodeToString()
+        } catch (_: Exception) {
+            throw IoError(IoErrorKind.InvalidData, "numeric field did not have utf-8 text")
+        }
     val trimmed = numStr.trim()
     if (trimmed.isEmpty()) return 0L
     return try {
@@ -843,13 +869,12 @@ fun numFieldWrapperInto(dst: ByteArray, src: Long) {
     }
 }
 
-fun numFieldWrapperFrom(src: ByteArray): Long {
-    return if ((src[0].toInt() and 0x80) != 0) {
+fun numFieldWrapperFrom(src: ByteArray): Long =
+    if ((src[0].toInt() and 0x80) != 0) {
         numericExtendedFrom(src)
     } else {
         octalFrom(src)
     }
-}
 
 fun numericExtendedInto(dst: ByteArray, src: Long) {
     val len = dst.size
@@ -866,12 +891,13 @@ fun numericExtendedInto(dst: ByteArray, src: Long) {
 
 fun numericExtendedFrom(src: ByteArray): Long {
     var dst: Long = 0L
-    val bToSkip = if (src.size == 8) {
-        dst = ((src[0].toInt() and 0xFF) xor 0x80).toLong()
-        1
-    } else {
-        src.size - 8
-    }
+    val bToSkip =
+        if (src.size == 8) {
+            dst = ((src[0].toInt() and 0xFF) xor 0x80).toLong()
+            1
+        } else {
+            src.size - 8
+        }
     for (i in bToSkip until src.size) {
         dst = (dst shl 8) or ((src[i].toInt() and 0xFF).toLong())
     }
