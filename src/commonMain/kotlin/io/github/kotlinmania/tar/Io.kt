@@ -157,13 +157,6 @@ interface Seek {
 }
 
 /**
- * Combined trait for seekable readers, mirroring `std::io::Seek + Read`.
- */
-interface SeekRead :
-    Read,
-    Seek
-
-/**
  * Reader adapter that limits the number of bytes read, mirroring `std::io::Take`.
  */
 class Take<R : Read>(
