@@ -214,32 +214,72 @@ class HeaderTest {
 
         h.mtime.copyFrom(
             byteArrayOf(
-                0x80.toByte(), 0, 0, 0, 0x01, 0x23, 0x45, 0x67,
-                0x89.toByte(), 0xab.toByte(), 0xcd.toByte(), 0xef.toByte(),
+                0x80.toByte(),
+                0,
+                0,
+                0,
+                0x01,
+                0x23,
+                0x45,
+                0x67,
+                0x89.toByte(),
+                0xab.toByte(),
+                0xcd.toByte(),
+                0xef.toByte(),
             ),
         )
         assertEquals(0x0123456789abcdefL, h.asHeader().mtime())
 
         h.realsizeBytes.copyFrom(
             byteArrayOf(
-                0x80.toByte(), 0, 0, 0, 0, 0x12, 0x34, 0x56,
-                0x78, 0x9a.toByte(), 0xbc.toByte(), 0xde.toByte(),
+                0x80.toByte(),
+                0,
+                0,
+                0,
+                0,
+                0x12,
+                0x34,
+                0x56,
+                0x78,
+                0x9a.toByte(),
+                0xbc.toByte(),
+                0xde.toByte(),
             ),
         )
         assertEquals(0x00123456789abcdeL, h.realSize())
 
         h.sparse[0].offsetBytes.copyFrom(
             byteArrayOf(
-                0x80.toByte(), 0, 0, 0, 0, 0x01, 0x23, 0x45,
-                0x67, 0x89.toByte(), 0xab.toByte(), 0xcd.toByte(),
+                0x80.toByte(),
+                0,
+                0,
+                0,
+                0,
+                0x01,
+                0x23,
+                0x45,
+                0x67,
+                0x89.toByte(),
+                0xab.toByte(),
+                0xcd.toByte(),
             ),
         )
         assertEquals(0x000123456789abcdL, h.sparse[0].offset())
 
         h.sparse[0].numbytes.copyFrom(
             byteArrayOf(
-                0x80.toByte(), 0, 0, 0, 0, 0x12, 0x34, 0x56,
-                0x78, 0x9a.toByte(), 0xbc.toByte(), 0xde.toByte(),
+                0x80.toByte(),
+                0,
+                0,
+                0,
+                0,
+                0x12,
+                0x34,
+                0x56,
+                0x78,
+                0x9a.toByte(),
+                0xbc.toByte(),
+                0xde.toByte(),
             ),
         )
         assertEquals(0x00123456789abcdeL, h.sparse[0].length())
