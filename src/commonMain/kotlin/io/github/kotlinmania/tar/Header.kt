@@ -254,7 +254,7 @@ class Header(
         }
     }
 
-    private fun pathLossy(): String = pathBytes().decodeToString()
+    fun pathLossy(): String = pathBytes().decodeToString()
 
     /** Sets the path name for this header. */
     fun setPath(path: String) {

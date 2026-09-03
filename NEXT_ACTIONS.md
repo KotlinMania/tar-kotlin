@@ -4,12 +4,12 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 7/8 (87.5%)
-- **Function parity:** 165/230 matched (target 251) — 71.7%
-- **Class/type parity:** 20/30 matched (target 43) — 66.7%
-- **Combined symbol parity:** 185/260 matched (target 294) — 71.2%
-- **Average inline-code cosine:** 0.61 (function body across 7 matched files)
-- **Average documentation cosine:** 0.72 (doc text across 7 matched files)
+- **Files Present:** 8/8 (100.0%)
+- **Function parity:** 200/222 matched (target 300) — 90.1%
+- **Class/type parity:** 26/30 matched (target 50) — 86.7%
+- **Combined symbol parity:** 226/252 matched (target 350) — 89.7%
+- **Average inline-code cosine:** 0.62 (function body across 8 matched files)
+- **Average documentation cosine:** 0.73 (doc text across 8 matched files)
 - **Cheat-zeroed Files:** 0
 - **Critical Issues:** 3 files with <0.60 function similarity
 
@@ -49,7 +49,19 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 7/9 matched (target 8)
 - **Missing types:** `DebugAsOctal`, `DebugSparseHeaders`
 
-### 3. error
+### 3. builder
+
+- **Target:** `tar.Builder`
+- **Similarity:** 0.71
+- **Dependents:** 0
+- **Priority Score:** 24302.9
+- **Functions:** 35/37 matched (target 48)
+- **Missing functions:** `test_find_sparse_entries`, `loose_check_sparse_entries`
+- **Types:** 6/6 matched (target 7)
+- **Missing types:** _none_
+- **Tests:** 0/2 matched
+
+### 4. error
 
 - **Target:** `tar.Error`
 - **Similarity:** 0.48
@@ -60,18 +72,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched (target 2)
 - **Missing types:** _none_
 
-### 4. archive
+### 5. archive
 
 - **Target:** `tar.Archive`
 - **Similarity:** 0.75
 - **Dependents:** 0
 - **Priority Score:** 12702.5
-- **Functions:** 21/21 matched (target 27)
+- **Functions:** 21/21 matched (target 28)
 - **Missing functions:** _none_
 - **Types:** 5/6 matched (target 5)
 - **Missing types:** `Item`
 
-### 5. pax
+### 6. pax
 
 - **Target:** `tar.Pax`
 - **Similarity:** 0.55
@@ -82,7 +94,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/3 matched (target 4)
 - **Missing types:** `Item`
 
-### 6. entry
+### 7. entry
 
 - **Target:** `tar.Entry`
 - **Similarity:** 0.65
@@ -94,7 +106,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Lint issues:** 13
 
-### 7. lib
+### 8. lib
 
 - **Target:** `tar.Lib`
 - **Similarity:** 0.78
