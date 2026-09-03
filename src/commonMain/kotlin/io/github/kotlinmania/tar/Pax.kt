@@ -64,7 +64,9 @@ class PaxExtension(
  * This iterator yields structures which can themselves be parsed into
  * key/value pairs.
  */
-class PaxExtensions(private val data: ByteArray) : Iterable<PaxExtension> {
+class PaxExtensions(
+    private val data: ByteArray,
+) : Iterable<PaxExtension> {
     override fun iterator(): Iterator<PaxExtension> = PaxExtensionsIterator(data)
 
     companion object {
@@ -75,7 +77,9 @@ class PaxExtensions(private val data: ByteArray) : Iterable<PaxExtension> {
     }
 }
 
-private class PaxExtensionsIterator(private val data: ByteArray) : Iterator<PaxExtension> {
+private class PaxExtensionsIterator(
+    private val data: ByteArray,
+) : Iterator<PaxExtension> {
     private var offset: Int = 0
     private var nextItem: PaxExtension? = null
     private var advanceChecked: Boolean = false
@@ -227,4 +231,3 @@ fun isNewline(b: Byte): Boolean = b == '\n'.code.toByte()
 
 /** Formats and appends PAX extensions into a byte array. */
 fun appendPaxExtensions(headers: Iterable<Pair<String, ByteArray>>): ByteArray = formatPaxExtensions(headers)
-
