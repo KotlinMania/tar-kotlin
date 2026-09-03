@@ -609,7 +609,13 @@ if (benchmarkEnabled) {
 tasks.named("check") {
     dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>())
     dependsOn(tasks.named("ktlintCheck"))
-    dependsOn("test")
+    // Android host unit tests run here alongside the tests that check -> allTests
+    // already executes (jvm, macosArm64, the Apple simulators, js, wasmJs,
+    // wasmWasi). Test EXECUTION belongs to check; target BUILD coverage belongs
+    // to the explicit all-target build set below.
+    dependsOn("testAndroidHostTest")
+    // Swift Export smoke test is required; it must not self-skip.
+    dependsOn("swiftExportSmokeTest")
 }
 
 // ============================================================================
@@ -914,7 +920,11 @@ tasks.register("hostTests") {
 // Patch generated SPM Package.swift to include minimum macOS platform for Swift Concurrency
 tasks.matching { it.name.contains("GenerateSPMPackage") }.configureEach {
     doLast {
-        val spmDir = layout.buildDirectory.dir("SPMPackage").orNull?.asFile
+        val spmDir =
+            layout.buildDirectory
+                .dir("SPMPackage")
+                .orNull
+                ?.asFile
         if (spmDir != null && spmDir.exists()) {
             spmDir.walkTopDown().filter { it.name == "Package.swift" }.forEach { file ->
                 val text = file.readText()
