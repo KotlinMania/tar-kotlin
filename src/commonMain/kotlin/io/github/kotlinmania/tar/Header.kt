@@ -218,6 +218,21 @@ class Header(
     /** Returns a view into this header as a byte array. */
     fun asMutBytes(): ByteArray = bytes
 
+    /** Returns sparse headers if this is a GNU header. */
+    fun sparse(): List<GnuSparseHeader>? = asGnu()?.sparse
+
+    /** Returns mutable sparse headers if this is a GNU header. */
+    fun sparseMut(): List<GnuSparseHeader>? = asGnuMut()?.sparse
+
+    /** Fills the header bytes from an input buffer. */
+    fun fillFrom(input: ByteArray) {
+        val count = minOf(bytes.size, input.size)
+        input.copyInto(bytes, 0, 0, count)
+        if (count < bytes.size) {
+            bytes.fill(0, count, bytes.size)
+        }
+    }
+
     /**
      * Returns the size of entry's data this header represents.
      */
@@ -756,6 +771,9 @@ class GnuHeader(
     fun setIsExtended(isExtendedVal: Boolean) {
         bytes[482] = if (isExtendedVal) 1 else 0
     }
+
+    fun fullnameLossy(): String =
+        "${groupnameBytes().decodeToString()}:${usernameBytes().decodeToString()}"
 }
 
 /**
@@ -993,3 +1011,7 @@ fun copyPathIntoGnuLong(slot: ByteSlice, path: String, isLinkName: Boolean) {
 }
 
 fun bytes2path(bytes: ByteArray): String = bytes.decodeToString()
+
+fun endsWithSlash(path: String): Boolean = path.endsWith('/') || path.endsWith('\\')
+
+fun path2bytes(path: String): ByteArray = path.encodeToByteArray()
