@@ -135,18 +135,18 @@ fun copy(reader: Read, writer: Write, buffer: ByteArray = ByteArray(8192)): Long
 /**
  * Seek positioning enumeration, mirroring `std::io::SeekFrom`.
  */
-sealed class SeekFrom {
+sealed interface SeekFrom {
     data class Start(
         val offset: Long,
-    ) : SeekFrom()
+    ) : SeekFrom
 
     data class End(
         val offset: Long,
-    ) : SeekFrom()
+    ) : SeekFrom
 
     data class Current(
         val offset: Long,
-    ) : SeekFrom()
+    ) : SeekFrom
 }
 
 /**

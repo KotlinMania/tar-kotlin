@@ -292,4 +292,34 @@ class HeaderTest {
         val bConv = Header.fromByteSlice(h.asBytes()).asBytes()
         assertTrue(b.contentEquals(bConv))
     }
+
+    @Test
+    fun sparseHeadersAndFullnameLossy() {
+        val h = Header.newGnu()
+        val gnu = h.asGnu()
+        assertNotNull(gnu)
+        gnu.setUsername("alice")
+        gnu.setGroupname("wheel")
+        assertEquals("wheel:alice", gnu.fullnameLossy())
+
+        val sparseHeaders = h.sparse()
+        assertNotNull(sparseHeaders)
+        assertEquals(GNU_SPARSE_HEADERS_COUNT, sparseHeaders.size)
+        assertEquals(sparseHeaders.size, gnu.sparse.size)
+    }
+
+    @Test
+    fun fillFromAndPathHelpers() {
+        val h = Header.newOld()
+        val testData = ByteArray(512) { (it % 128).toByte() }
+        h.fillFrom(testData)
+        assertTrue(testData.contentEquals(h.asBytes()))
+
+        assertTrue(endsWithSlash("dir/"))
+        assertTrue(endsWithSlash("dir\\"))
+        assertTrue(!endsWithSlash("file.txt"))
+
+        val pathBytes = path2bytes("test/path.txt")
+        assertEquals("test/path.txt", pathBytes.decodeToString())
+    }
 }

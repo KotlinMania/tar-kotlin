@@ -278,13 +278,14 @@ internal class EntryFields(
                     } else {
                         src
                     }
+                hardLink(linkSrc, dst)
             } else {
                 symlink(src, dst)
                 if (preserveOwnerships) {
                     setOwnerships(dst, null, header.uid(), header.gid())
                 }
                 if (preserveMtime) {
-                    val mtime = getMtime(header)
+                    getMtime(header)?.let { setFileTimes(dst, it) }
                 }
             }
             return Unpacked.Nonexhaustive
@@ -320,6 +321,7 @@ internal class EntryFields(
                         throw TarError("failed to write entire file")
                     }
                 }
+
                 is EntryIo.Pad -> {
                     val padBytes = ByteArray(io.limit().toInt())
                     io.read(padBytes, 0, padBytes.size)
@@ -329,7 +331,7 @@ internal class EntryFields(
         data.clear()
 
         if (preserveMtime) {
-            val mtime = getMtime(header)
+            getMtime(header)?.let { setFileTimes(dst, it) }
         }
         setPermsOwnerships(
             dst,
@@ -372,6 +374,14 @@ internal class EntryFields(
 
     fun symlink(src: String, dst: String) {
         // Platform symlink operation
+    }
+
+    fun hardLink(src: String, dst: String) {
+        // Platform hard link operation
+    }
+
+    fun setFileTimes(dst: String, mtime: Long) {
+        // Platform file times setting
     }
 
     fun open(dst: String): Any = dst
@@ -454,10 +464,10 @@ internal class EntryFields(
 /**
  * Underlying data stream for an [Entry], either raw archive data or padding zeros.
  */
-internal sealed class EntryIo : Read {
+internal sealed interface EntryIo : Read {
     class Pad(
         val take: Take<Repeat>,
-    ) : EntryIo() {
+    ) : EntryIo {
         override fun read(into: ByteArray, offset: Int, length: Int): Int = take.read(into, offset, length)
 
         fun limit(): Long = take.limit
@@ -465,7 +475,7 @@ internal sealed class EntryIo : Read {
 
     class Data(
         val take: Take<Read>,
-    ) : EntryIo() {
+    ) : EntryIo {
         override fun read(into: ByteArray, offset: Int, length: Int): Int = take.read(into, offset, length)
 
         fun limit(): Long = take.limit
@@ -475,14 +485,14 @@ internal sealed class EntryIo : Read {
 /**
  * Result of unpacking an entry.
  */
-sealed class Unpacked {
+sealed interface Unpacked {
     class File(
         val path: String = "",
-    ) : Unpacked() {
+    ) : Unpacked {
         override fun toString(): String = "File($path)"
     }
 
-    object Nonexhaustive : Unpacked() {
+    object Nonexhaustive : Unpacked {
         override fun toString(): String = "Nonexhaustive"
     }
 }
