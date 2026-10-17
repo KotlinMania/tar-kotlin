@@ -46,3 +46,8 @@ class TarError(
  * [TarError] itself.
  */
 fun TarError.toIoError(): IoError = IoError(io.kind, desc, this)
+
+/**
+ * Builds an [IoError] tagged with [IoErrorKind.Other] from a descriptive message.
+ */
+internal fun other(msg: String): IoError = IoError.new(IoErrorKind.Other, msg)

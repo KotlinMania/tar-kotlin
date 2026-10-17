@@ -1,11 +1,28 @@
 // port-lint: tests all.rs
 package io.github.kotlinmania.tar
 
+import io.github.kotlinmania.rand.rngs.SmallRng
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+class RandomReader<R : Read>(
+    private val inner: R,
+    private val rng: SmallRng = SmallRng.seedFromU64(0uL),
+) : Read {
+    override fun read(into: ByteArray, offset: Int, length: Int): Int {
+        if (length <= 0) return 0
+        val a = rng.randomRange(1..length)
+        val b = rng.randomRange(1..length)
+        val maxToRead = minOf(a, b)
+        return inner.read(into, offset, maxToRead)
+    }
+}
+
+fun randomCursorReader(data: ByteArray): RandomReader<Cursor> =
+    RandomReader(Cursor(data))
 
 class ArchiveTest {
     private fun createTarBytes(files: List<Pair<String, ByteArray>>): ByteArray {
@@ -100,7 +117,7 @@ class ArchiveTest {
         val doubleArchive = singleArchive + singleArchive
 
         // Without ignore_zeros: should only yield the entry from the first archive
-        val ar1 = Archive.new(Cursor(doubleArchive))
+        val ar1 = Archive.new(randomCursorReader(doubleArchive))
         val names1 = mutableListOf<String>()
         for (entry in ar1.entries()) {
             names1.add(entry.path())
@@ -108,7 +125,7 @@ class ArchiveTest {
         assertEquals(listOf("file.txt"), names1)
 
         // With ignore_zeros: should yield entries from both archives
-        val ar2 = Archive.new(Cursor(doubleArchive))
+        val ar2 = Archive.new(randomCursorReader(doubleArchive))
         ar2.setIgnoreZeros(true)
         val names2 = mutableListOf<String>()
         for (entry in ar2.entries()) {

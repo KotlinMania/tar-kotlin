@@ -224,6 +224,55 @@ class Header(
     /** Returns mutable sparse headers if this is a GNU header. */
     fun sparseMut(): List<GnuSparseHeader>? = asGnuMut()?.sparse
 
+    /** Sets all metadata relevant to this header from the metadata argument provided. */
+    fun setMetadata(meta: TarMetadata) {
+        fillFrom(meta, HeaderMode.Complete)
+    }
+
+    /** Sets only the metadata relevant to the given HeaderMode in this header. */
+    fun setMetadataInMode(meta: TarMetadata, mode: HeaderMode) {
+        fillFrom(meta, mode)
+    }
+
+    /** Fills the header fields from [meta] according to [mode]. */
+    fun fillFrom(meta: TarMetadata, mode: HeaderMode = HeaderMode.Complete) {
+        setSize(if (meta.isDir || meta.isSymlink) 0L else meta.len)
+        asUstarMut()?.let { ustar ->
+            ustar.setDeviceMajor(0)
+            ustar.setDeviceMinor(0)
+        }
+        asGnuMut()?.let { gnu ->
+            gnu.setDeviceMajor(0)
+            gnu.setDeviceMinor(0)
+        }
+        fillPlatformFrom(meta, mode)
+    }
+
+    private fun fillPlatformFrom(meta: TarMetadata, mode: HeaderMode) {
+        when (mode) {
+            HeaderMode.Complete -> {
+                setMtime(meta.mtime)
+                setUid(meta.uid)
+                setGid(meta.gid)
+                setMode(meta.mode.toInt())
+            }
+
+            HeaderMode.Deterministic -> {
+                setMtime(DETERMINISTIC_TIMESTAMP)
+                setUid(0L)
+                setGid(0L)
+                val fsMode =
+                    if (meta.isDir || (0b001_000_000u and meta.mode == 0b001_000_000u)) {
+                        0x1ED // 0755
+                    } else {
+                        0x1A4 // 0644
+                    }
+                setMode(fsMode)
+            }
+        }
+        setEntryType(entryTypeFromMode(meta.mode))
+    }
+
     /** Fills the header bytes from an input buffer. */
     fun fillFrom(input: ByteArray) {
         val count = minOf(bytes.size, input.size)
@@ -992,22 +1041,32 @@ fun normalizePath(path: String, isLinkName: Boolean): String {
     return result
 }
 
-fun copyPathInto(slot: ByteSlice, path: String, isLinkName: Boolean) {
+fun copyPathIntoInner(
+    slot: ByteSlice,
+    path: String,
+    isLinkName: Boolean,
+    isTruncatedGnuLongPath: Boolean,
+) {
     val normalized = normalizePath(path, isLinkName)
     val bytes = normalized.encodeToByteArray()
-    if (bytes.size > slot.size) {
-        throw IoError(IoErrorKind.InvalidInput, "provided value is too long")
+    if (isTruncatedGnuLongPath) {
+        val copyLen = minOf(slot.size, bytes.size)
+        val slice = bytes.copyOfRange(0, copyLen)
+        slot.copyFrom(slice)
+    } else {
+        if (bytes.size > slot.size) {
+            throw IoError(IoErrorKind.InvalidInput, "provided value is too long")
+        }
+        slot.copyFrom(bytes)
     }
-    slot.copyFrom(bytes)
+}
+
+fun copyPathInto(slot: ByteSlice, path: String, isLinkName: Boolean) {
+    copyPathIntoInner(slot, path, isLinkName, false)
 }
 
 fun copyPathIntoGnuLong(slot: ByteSlice, path: String, isLinkName: Boolean) {
-    // Truncated version for GNU long paths
-    val normalized = normalizePath(path, isLinkName)
-    val bytes = normalized.encodeToByteArray()
-    val copyLen = minOf(slot.size, bytes.size)
-    val slice = bytes.copyOfRange(0, copyLen)
-    slot.copyFrom(slice)
+    copyPathIntoInner(slot, path, isLinkName, true)
 }
 
 fun bytes2path(bytes: ByteArray): String = bytes.decodeToString()
@@ -1015,3 +1074,37 @@ fun bytes2path(bytes: ByteArray): String = bytes.decodeToString()
 fun endsWithSlash(path: String): Boolean = path.endsWith('/') || path.endsWith('\\')
 
 fun path2bytes(path: String): ByteArray = path.encodeToByteArray()
+
+fun notUnicode(bytes: ByteArray): IoError =
+    other("only Unicode paths are supported on Windows: ${bytes.decodeToString()}")
+
+fun invalidUtf8(): IoError =
+    IoError.new(IoErrorKind.InvalidData, "Invalid utf-8")
+
+const val FILE_ATTRIBUTE_READONLY: UInt = 0x00000001u
+
+/**
+ * Platform-independent metadata representation for archive entries, mirroring `std::fs::Metadata`.
+ */
+data class TarMetadata(
+    val len: Long = 0L,
+    val isDir: Boolean = false,
+    val isSymlink: Boolean = false,
+    val mtime: Long = 0L,
+    val uid: Long = 0L,
+    val gid: Long = 0L,
+    val mode: UInt = 0u,
+)
+
+private fun entryTypeFromMode(mode: UInt): EntryType {
+    val ifmt = mode.toInt() and 0xF000
+    return when (ifmt) {
+        0x8000 -> EntryType.file()
+        0xA000 -> EntryType.symlink()
+        0x2000 -> EntryType.characterSpecial()
+        0x6000 -> EntryType.blockSpecial()
+        0x4000 -> EntryType.dir()
+        0x1000 -> EntryType.fifo()
+        else -> EntryType.new(' '.code.toUByte())
+    }
+}
