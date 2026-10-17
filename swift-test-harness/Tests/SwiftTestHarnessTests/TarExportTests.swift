@@ -1,4 +1,4 @@
-import Testing
+import XCTest
 import Tar
 
 // Smoke test for the Kotlin → Swift Export → SPM → swift test pipeline.
@@ -24,14 +24,10 @@ import Tar
 //      build.gradle.kts produced a module name that's both syntactically
 //      valid as a Swift identifier and reachable from this Package.swift
 //      via the `TarLibrary` product.
-//
-// Add more meaningful per-API tests below as the Swift Export surface
-// grows. For now the import + a single passing assertion is the
-// canary that the pipeline is green for this repo.
-@Suite("Tar Swift Export Tests")
-struct TarExportTests {
-    @Test("Tar swift module imported cleanly")
-    func swiftModuleLoads() {
-        #expect(Bool(true))
+final class TarExportTests: XCTestCase {
+    func testSwiftModuleLoads() throws {
+        let header = Header.Companion.shared.newGnu()
+        header.setSize(size: 1024)
+        XCTAssertEqual(1024, header.entrySize())
     }
 }
