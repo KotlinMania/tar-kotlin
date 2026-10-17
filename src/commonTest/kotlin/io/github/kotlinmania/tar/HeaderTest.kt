@@ -1,4 +1,3 @@
-// port-lint: tests tests/header/mod.rs
 package io.github.kotlinmania.tar
 
 import kotlin.test.Test
@@ -321,5 +320,30 @@ class HeaderTest {
 
         val pathBytes = path2bytes("test/path.txt")
         assertEquals("test/path.txt", pathBytes.decodeToString())
+    }
+
+    @Test
+    fun metadataAndCopyPathInner() {
+        val h = Header.newGnu()
+        val meta =
+            TarMetadata(
+                len = 1024L,
+                isDir = false,
+                isSymlink = false,
+                mtime = 123456789L,
+                uid = 1000L,
+                gid = 1000L,
+                mode = 0x81A4u,
+            )
+        h.setMetadata(meta)
+        assertEquals(1024L, h.entrySize())
+        assertEquals(123456789L, h.mtime())
+        assertEquals(1000L, h.uid())
+        assertEquals(1000L, h.gid())
+        assertEquals(EntryType.file(), h.entryType())
+
+        val slot = ByteSlice.wrap(ByteArray(100))
+        copyPathIntoInner(slot, "dir/inner.txt", isLinkName = false, isTruncatedGnuLongPath = false)
+        assertEquals("dir/inner.txt", slot.array.copyOfRange(0, 13).decodeToString())
     }
 }

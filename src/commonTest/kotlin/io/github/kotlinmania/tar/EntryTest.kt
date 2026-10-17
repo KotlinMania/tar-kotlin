@@ -194,4 +194,6 @@ class EntryTest {
         val newEntry = retrieved.intoEntry()
         assertEquals("test.txt", newEntry.path())
     }
+
+    // Upstream entry.rs filesystem unpack tests (absolute_symlink, absolute_hardlink, relative_hardlink, parent_paths_error, etc.) depend on tempfile::Builder which is pending tempfile-kotlin 0.1.1 publication to Maven Central.
 }
