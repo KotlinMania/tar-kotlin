@@ -26,6 +26,8 @@ performance:
 
 style:
   active: true
+  AbstractClassCanBeConcreteClass: { active: false }
+  AbstractClassCanBeInterface: { active: false }
   MagicNumber: { active: false }
   NewLineAtEndOfFile: { active: false }
   MayBeConstant: { active: false }
